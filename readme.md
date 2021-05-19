@@ -22,6 +22,16 @@ For example:
 
 Connect to the droplet via ssh:
 
+    #First step: make updates
+
+    remote> apt-get update
+    remote> apt-get --with-new-pkgs upgrade
+    remote> apt-get autoremove
+    remote> apt-get autoclean
+    remote> reboot
+
+Reconnect to the droplet via ssh:
+
     # add port 8448 to the firewall, this is needed for the matrix federation
     remote> ufw allow 8448/tcp
 
