@@ -92,8 +92,7 @@ After the change is reverted, we can now link the database to the application
     postgres://postgres:random_postgres_password@dokku-postgres-synapsedb:5432/synapsedb
 
 
-Before we leave the remote, note the uid and gid for the dokku user and group
-# we'll need it in the next step
+Before we leave the remote, note the uid and gid for the dokku user and group - we'll need it in the next step
 
     remote> id dokku
     uid=1000(dokku) gid=1000(dokku) [...]
@@ -213,7 +212,11 @@ For matrix to work nicely, the server on port 8448 must be considered as
 easiest would be to copy the file from this repo – I also added a ".well-known"
 URL for matrix.
 
-But now to the first deploy:
+
+Deploying synapse with dokku
+----------------------------
+
+To deploy an app with dokku, xou just have to push a git repo to the right server url:
 
     # add dokku as remote
     local> git remote add dokku dokku@dokku.example.com:/matrix
@@ -223,6 +226,7 @@ But now to the first deploy:
     # push the dockerfile
     local> git push dokku master
 
+**WARNING**: Do not push a dokku deploy repo to a public repo since its config files might contain sensitive data like keys and passwords.
 
 For the next step - acquiring a [let's encrypt][lets] certificate - we need a
 working http server on port 80. therefore we'll forward the requests to port
@@ -302,8 +306,7 @@ The most important thing is to set the base url and server name.
 The [documentation][edoc] for the config file is quite extensive, make
 adjustments as you like.
 
-
-The first step would be to add a new dokku app:
+everything should be prepared now to deploy Element-Web to dokku. As a first step add a new dokku app:
 
     # create the deployment app
     # the name will also be the virtual host name later - here "chat" is used
