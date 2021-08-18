@@ -52,38 +52,18 @@ Reconnect to the droplet via ssh:
     remote> dokku plugin:install https://github.com/dokku/dokku-postgres.git
 
 
-The next thing is **scary**
+The next step is to create a postgres service and link it to the application
 
-We need to set the locale for a new postgres database to "C" to for synapse.
-Unfortunately I didn't find a way to pass this somehow to the
-`dokku postgres:create`, so we need to modify the plugin script, create the
-database, check if it worked and remove the modification.
-
-    # uncomment one line and add a slightly modified one below
-
-    remote> vim /var/lib/dokku/plugins/enabled/postgres/functions
-
-    [...]
-    #docker exec "$SERVICE_NAME" su - postgres -c "createdb -E utf8 $DATABASE_NAME" 2>/dev/null || dokku_log_verbose_quiet 'Already exists
-    docker exec "$SERVICE_NAME" su - postgres -c "createdb -E utf8 --locale=C -T template0 $DATABASE_NAME" 2>/dev/null || dokku_log_verbose_quiet 'Already exists'
-    [...]
-
-    # create a postgres service with the name synapsedb
-    remote> dokku postgres:create synapsedb
+   
+    # create a postgres service with the name synapsedb. Use --custom-env "LC_ALL=C" to set the postgres locale to 'C' (the default postgreSQL cluster locale)
+    remote> dokku postgres:create synapsedb --custom-env "LC_ALL=C"
 
     #check if the datatbase was created successfully with the "C" locale
     remote> dokku postgres:enter synapsedb
     remote#synapsedb> psql -U postgres
     remote#postgres=# select datname, datcollate, datctype from pg_database;
-
-    # restore the original postgres createdb command
-    remote> vim /var/lib/dokku/plugins/enabled/postgres/functions
-    [...]
-    docker exec "$SERVICE_NAME" su - postgres -c "createdb -E utf8 $DATABASE_NAME" 2>/dev/null || dokku_log_verbose_quiet 'Already exists
-    #docker exec "$SERVICE_NAME" su - postgres -c "createdb -E utf8 --locale=C -T template0 $DATABASE_NAME" 2>/dev/null || dokku_log_verbose_quiet 'Already exists'
-    [...]
-
-After the change is reverted, we can now link the database to the application
+    
+We can now link the database to the application
 
     remote> dokku postgres:link synapsedb matrix
 
