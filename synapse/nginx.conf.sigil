@@ -92,6 +92,10 @@ server {
     proxy_set_header X-Forwarded-For $remote_addr;
     proxy_set_header X-Forwarded-Port $server_port;
     proxy_set_header X-Request-Start $msec;
+    
+    # Nginx by default only allows file uploads up to 1M in size
+    # Increase client_max_body_size to match max_upload_size defined in homeserver.yaml
+    client_max_body_size 50M;
   }
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 
@@ -153,7 +157,10 @@ server {
   ssl_certificate_key       {{ $.APP_SSL_PATH }}/server.key;
   ssl_protocols             TLSv1.2 {{ if eq $.TLS13_SUPPORTED "true" }}TLSv1.3{{ end }};
   ssl_prefer_server_ciphers off;
-
+  
+  # Nginx by default only allows file uploads up to 1M in size
+  # Increase client_max_body_size to match max_upload_size defined in homeserver.yaml
+  client_max_body_size 50M;
   location    / {
     grpc_pass  grpc://{{ $.APP }}-{{ $upstream_port }};
   }
